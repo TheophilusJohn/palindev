@@ -1,56 +1,96 @@
 # Template for data/<provider>/<resource>.<verb>.yaml. See docs/SCHEMA.md.
 # Replace every <...>. New records start as confidence: draft.
 # Can't support a field with evidence? Delete it, add a `todo` evidence item whose
-# `field` names it (rule V19), and add an "Open question:" line to notes.
+# `field` names it (a dotted path such as undo.window for a sub-key; rule V19), and add
+# an "Open question:" line to notes.
 # id, provider, title, operation, class, confidence and evidence are always required.
+# On non-drafts, every key under flags and undo and all four suggested_annotations hints
+# are required: write null or [] where there is none.
+# Optional blocks (mcp_tool_aliases, cli_aliases, variants, related): delete what doesn't apply.
 id: <provider>.<resource>.<verb>
 provider: <provider>
 title: "<Short and imperative, such as Send an invoice>"
 summary: <One plain sentence on what the call does.>
 operation:
-  kind: http
-  method: <GET|POST|PUT|PATCH|DELETE>
-  path: </v1/resource/{id}/verb>
-api_version: <version or "unversioned">
-mcp_tool_aliases:
+  kind: http                      # http | graphql | rpc
+  # service: <lowercase, such as s3>   # required when provider is aws; delete otherwise
+  method: <GET|POST|PUT|PATCH|DELETE>   # http only; delete for graphql and rpc
+  path: </v1/resource/{id}/verb>  # http: path template; rpc: method name; graphql: root field name
+api_version: "<version, or unversioned>"   # always quoted
+mcp_tool_aliases:                 # keep only the forms that apply; each needs evidence (server code or docs)
   - server: <owner/repo of the MCP server>
-    tool: <tool_name>
-class: <R0|R1|R2|R3|R4|R5>
+    tool: <tool_name>             # no matcher: only for a tool that does this one thing
+  - server: <owner/repo of the MCP server>
+    tool: <tool that dispatches on an argument>
+    match:                        # the alias applies only when these arguments have these values
+      <argument>: <value>         # a string, number or boolean, or a list of them meaning any of
+  - server: <owner/repo of the MCP server>
+    tool: <generic API tool, such as *_api_write>
+    operation_from_args:          # both keys required; an alias has match or operation_from_args, never both
+      method: <argument name>
+      path: <argument name>
+cli_aliases:                      # CLI commands that perform this operation; each needs evidence
+  - command: <cli subcommand verb, such as "gh repo delete">   # tokens the command line starts with
+  - command: <cli api>            # a generic CLI call
+    match:                        # flag names without dashes, or `path` for a positional path
+      method: <METHOD>
+      path: </v1/resource/{id}/verb>
+class: <R0|R1|R2|R3|R4|R5>        # with variants: the strictest across the record and its variants (V20)
 flags:
   moves_money: false
   reaches_third_parties: false
   changes_permissions: false
   bulk: false
+  modifies_existing: <true|false>   # changes or deletes existing data; false if it only creates. Always false for R0 and R1 (minor R1 metadata doesn't count)
   needs_admin_scope: false
-  idempotent: <natural|key|no>
+  idempotent: <natural|key|"no">    # quote "no"
 undo:
   method: <inverse_call|restore|compensating_action|none|not_applicable>
-  operation:                      # the API call, if there is one
+  operation:                      # the API call, if there is one; null when method is none or not_applicable
     kind: http
     method: <METHOD>
     path: </v1/...>
   steps: []                       # required instead of operation when the undo is UI or admin only
   window: null                    # R4 only: ISO 8601 duration such as P30D
   window_condition: null          # R4 only, instead of window: e.g. "until the invoice is paid"
-  compensating_action: null       # only when method is compensating_action
+  compensating_action: null       # only when method is compensating_action: one plain sentence; its API call, if any, goes in operation
+  capture: []                     # values the undo needs that can't be looked up later: response JSON paths such as [id];
+                                  # for a prior value read before the call, an item like
+                                  #   { before: { kind: http, method: GET, path: "</v1/...>" }, field: <JSON path> }
 residue:
   - kind: <notification|email|webhook|fee_retained|audit_log|third_party_copy|lost_state|cache|other>
     audience: <actor|workspace|external|vendor>
     when: <optional condition>
     note: <What exactly escapes or is lost.>
+    observed_by: doc              # drafts: always doc. probe or proxy only with a passing sandbox_run (V21)
 suggested_annotations:            # must follow the mapping table in docs/SCHEMA.md
-  readOnlyHint: false
-  destructiveHint: true           # R0 and R1: false; R2: true unless it only adds; R3-R5: true
-  idempotentHint: false           # true only when flags.idempotent is natural
+  readOnlyHint: false             # true only for R0
+  destructiveHint: true           # R0 and R1: false; R2: equals flags.modifies_existing; R3-R5: true
+  idempotentHint: false           # R0: always true; R1-R5: true only when flags.idempotent is natural
   openWorldHint: true
-recommended_policy: <allow|allow_and_log|confirm|confirm_strong|block>
+recommended_policy: <allow|allow_and_log|confirm|confirm_strong|block>   # with variants: at least every variant's
+approval_text: "<120 characters max: what escapes and whether it can be undone>"   # R3-R5 (V22); delete for R0-R2
+# variants:                       # only when arguments, settings or plan change the class, residue or undo
+#   - when:                       # all conditions must hold; a list of values means any of them
+#       args: { <argument>: <value> }        # API parameters, not MCP tool arguments or CLI flags
+#       settings: { <setting>: <value> }     # account or workspace settings
+#       plan: [<plan name from the provider's docs>]
+#     class: <no stricter than the top-level class (V20)>
+#     flags: { <flag>: <value> }             # merges key by key over the top level
+#     undo: { <every key of the top-level undo block> }   # replaces the top-level undo wholesale; set it when the class moves between R5, R2-R4 and R0-R1 (V10-V12 via V20)
+#     residue: []                            # replaces the top-level residue wholesale
+#     suggested_annotations: { destructiveHint: <value> }   # merges key by key; set it when the class changes the mapping (R2: equals flags.modifies_existing; R0/R1: false) (V13 via V20)
+#     recommended_policy: <no stricter than the top level>
+#     approval_text: <required if this variant is R3-R5; null if it is R0-R2 on an R3-R5 record>
+#     notes: "<Why this case differs.>"
+#   Keys a variant leaves out inherit from the top level; an explicit null clears.
 confidence: draft
 evidence:
   - type: doc
     url: <https://...>
     quote: "<40 words max, verbatim from the page>"
     retrieved: <YYYY-MM-DD>
-    supports: [summary]
+    supports: [summary]           # quote bracketed paths in flow lists: [summary, "variants[0].when"]
   - type: todo
     field: <the missing field, e.g. undo.window>
     note: <What evidence is still missing.>

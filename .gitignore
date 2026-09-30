@@ -17,6 +17,10 @@ coverage/
 runs/raw/
 .harness-tmp/
 
+# private business material: prices, go/no-go criteria, buyer lists, research notes (D21),
+# plus right-of-reply emails and disclosure reports a vendor must see first (D13, D22)
+private/
+
 # personal Claude Code files
 CLAUDE.local.md
 .claude/settings.local.json

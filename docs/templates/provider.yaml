@@ -1,23 +1,37 @@
 # Template for data/<provider>/_provider.yaml. See docs/SCHEMA.md.
-# Back versioning, sandbox and terms values with doc evidence items.
-id: <provider>
+# Every key is required. Back versioning, sandbox and terms values with doc evidence items.
+id: <provider>                    # equals the directory name (V1)
 name: <Display name>
 docs_url: <https://...>
 api_reference_url: <https://...>
-openapi_url: null
+openapi_url: null                 # or the OpenAPI file's URL, if the vendor publishes one
 changelog_url: <https://...>
 versioning: <How versions work, in a few words>
-current_api_version: <version or "unversioned">
+current_api_version: "<version, or unversioned>"   # always quoted
 terms_url: <https://... API terms of service>
+terms:                            # may Palin test this provider and publish the results? (D13, rule V24)
+  status: red                     # agents write red (or lower to red); only the maintainer raises it to yellow or green (D23)
+  consent: null                   # maintainer only: { date: YYYY-MM-DD, from: "<role at vendor>", reference: "<where the written consent is kept>" }, all three non-empty
+  notes: <What the API, developer-program and sandbox terms say on benchmarking, publishing results and commercial use; the proposed rating and why; for yellow, what is unclear>
 sandbox:
   kind: <test_mode|dev_workspace|test_account|none>
-  signup_url: <https://...>
+  signup_url: <https://...>       # null only when kind is none
   cost: <free|paid|unknown>
   notes: <How to get a sandbox; key prefixes; limits>
-evidence:
+evidence:                         # doc and vendor_statement items only, never todo
+  - type: doc
+    url: <https://... versioning page>
+    quote: "<40 words max, verbatim from the page>"
+    retrieved: <YYYY-MM-DD>
+    supports: [versioning, current_api_version]
   - type: doc
     url: <https://...>
     quote: "<40 words max, verbatim from the page>"
     retrieved: <YYYY-MM-DD>
     supports: [sandbox]
+  - type: doc                     # one item per relevant clause: benchmarking, publishing results, commercial use
+    url: <https://... terms page>
+    quote: "<40 words max, verbatim from the clause>"
+    retrieved: <YYYY-MM-DD>
+    supports: [terms]
 last_reviewed: <YYYY-MM-DD>

@@ -1,13 +1,25 @@
 // Template for tests/actions/<provider>/<resource>.<verb>.action.ts (copy and rename; the .tmpl
 // suffix keeps Vitest from running it). See docs/HARNESS.md.
-// Runs in mock mode in CI; sandbox mode only via `pnpm harness run --sandbox <id>`.
+// Only for providers whose _provider.yaml has terms.status green or a filled terms.consent (D13).
+// Runs in mock mode in CI through packages/harness/test/actions.test.ts, which globs
+// tests/actions/**/*.action.ts (the root package.json has @palindev/harness as a workspace:*
+// devDependency); sandbox mode only via `pnpm harness run --sandbox <id>`.
 // The context has one client per provider, named by provider id: replace `acme` with
-// `github`, `stripe`, `slack` and so on.
+// `github`, `aws` and so on.
 import { defineActionTest } from "@palindev/harness";
 
 export default defineActionTest({
   id: "<provider>.<resource>.<verb>",
   environment: "<test_mode|dev_workspace|test_account>",
+
+  // Optional. Index (from 0) of the record's `variants` entry this test exercises, or null for
+  // the default call. A variant test lives in <resource>.<verb>.variant-<n>.action.ts: seed
+  // applies the variant's settings, act passes its args, and expect describes the variant
+  // merged over the top level. The evidence records the index as tested_on.variant.
+  variant: null,
+
+  // Only for tests that make billable calls: max_cost, the worst-case cost of one run, which the
+  // maintainer approves in /verify-action (docs/HARNESS.md, Safety, "Billable actions").
 
   // Create everything the action needs. Names start with "palin-test-".
   seed: async ({ acme, probes }) => {
@@ -21,13 +33,15 @@ export default defineActionTest({
 
   act: async ({ acme }, fx) => acme.things.doTheAction(fx.thingId),
 
-  // The candidate undo, or null when no undo is expected (R5).
+  // The candidate undo, or null when no undo is expected (R5). API calls only: if the undo
+  // works only in the vendor's UI or admin console, don't write this test. If the record's
+  // undo.capture has a `before` read, make that read in seed and return the value in fx.
   undo: async ({ acme }, fx) => acme.things.undoTheAction(fx.thingId),
 
   probes: ["webhook"],
   expect: {
     class: "R3",
-    residue: ["webhook"],        // kinds a probe must observe
+    residue: ["webhook"],        // kinds a probe must observe, on channels in the provider's capabilities.ts
     documented_residue: [],      // kinds no probe can observe, from doc evidence
     window: null,                // R4: the doc-cited window or window_condition
   },
