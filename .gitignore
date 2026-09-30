@@ -1,0 +1,28 @@
+# dependencies and builds
+node_modules/
+dist/
+.turbo/
+.astro/
+.wrangler/
+coverage/
+*.tsbuildinfo
+
+# secrets: never commit
+.env
+.env.*
+*.pem
+*.key
+
+# harness scratch (committed traces live in runs/YYYY/MM/)
+runs/raw/
+.harness-tmp/
+
+# personal Claude Code files
+CLAUDE.local.md
+.claude/settings.local.json
+
+# OS and editors
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/

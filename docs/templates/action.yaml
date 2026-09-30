@@ -1,0 +1,59 @@
+# Template for data/<provider>/<resource>.<verb>.yaml. See docs/SCHEMA.md.
+# Replace every <...>. New records start as confidence: draft.
+# Can't support a field with evidence? Delete it, add a `todo` evidence item whose
+# `field` names it (rule V19), and add an "Open question:" line to notes.
+# id, provider, title, operation, class, confidence and evidence are always required.
+id: <provider>.<resource>.<verb>
+provider: <provider>
+title: "<Short and imperative, such as Send an invoice>"
+summary: <One plain sentence on what the call does.>
+operation:
+  kind: http
+  method: <GET|POST|PUT|PATCH|DELETE>
+  path: </v1/resource/{id}/verb>
+api_version: <version or "unversioned">
+mcp_tool_aliases:
+  - server: <owner/repo of the MCP server>
+    tool: <tool_name>
+class: <R0|R1|R2|R3|R4|R5>
+flags:
+  moves_money: false
+  reaches_third_parties: false
+  changes_permissions: false
+  bulk: false
+  needs_admin_scope: false
+  idempotent: <natural|key|no>
+undo:
+  method: <inverse_call|restore|compensating_action|none|not_applicable>
+  operation:                      # the API call, if there is one
+    kind: http
+    method: <METHOD>
+    path: </v1/...>
+  steps: []                       # required instead of operation when the undo is UI or admin only
+  window: null                    # R4 only: ISO 8601 duration such as P30D
+  window_condition: null          # R4 only, instead of window: e.g. "until the invoice is paid"
+  compensating_action: null       # only when method is compensating_action
+residue:
+  - kind: <notification|email|webhook|fee_retained|audit_log|third_party_copy|lost_state|cache|other>
+    audience: <actor|workspace|external|vendor>
+    when: <optional condition>
+    note: <What exactly escapes or is lost.>
+suggested_annotations:            # must follow the mapping table in docs/SCHEMA.md
+  readOnlyHint: false
+  destructiveHint: true           # R0 and R1: false; R2: true unless it only adds; R3-R5: true
+  idempotentHint: false           # true only when flags.idempotent is natural
+  openWorldHint: true
+recommended_policy: <allow|allow_and_log|confirm|confirm_strong|block>
+confidence: draft
+evidence:
+  - type: doc
+    url: <https://...>
+    quote: "<40 words max, verbatim from the page>"
+    retrieved: <YYYY-MM-DD>
+    supports: [summary]
+  - type: todo
+    field: <the missing field, e.g. undo.window>
+    note: <What evidence is still missing.>
+related: []
+notes: |
+  Open question: <anything unresolved>

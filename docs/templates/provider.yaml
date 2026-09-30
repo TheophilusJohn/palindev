@@ -1,0 +1,23 @@
+# Template for data/<provider>/_provider.yaml. See docs/SCHEMA.md.
+# Back versioning, sandbox and terms values with doc evidence items.
+id: <provider>
+name: <Display name>
+docs_url: <https://...>
+api_reference_url: <https://...>
+openapi_url: null
+changelog_url: <https://...>
+versioning: <How versions work, in a few words>
+current_api_version: <version or "unversioned">
+terms_url: <https://... API terms of service>
+sandbox:
+  kind: <test_mode|dev_workspace|test_account|none>
+  signup_url: <https://...>
+  cost: <free|paid|unknown>
+  notes: <How to get a sandbox; key prefixes; limits>
+evidence:
+  - type: doc
+    url: <https://...>
+    quote: "<40 words max, verbatim from the page>"
+    retrieved: <YYYY-MM-DD>
+    supports: [sandbox]
+last_reviewed: <YYYY-MM-DD>

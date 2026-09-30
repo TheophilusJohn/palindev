@@ -1,0 +1,37 @@
+// Template for tests/actions/<provider>/<resource>.<verb>.action.ts (copy and rename; the .tmpl
+// suffix keeps Vitest from running it). See docs/HARNESS.md.
+// Runs in mock mode in CI; sandbox mode only via `pnpm harness run --sandbox <id>`.
+// The context has one client per provider, named by provider id: replace `acme` with
+// `github`, `stripe`, `slack` and so on.
+import { defineActionTest } from "@palindev/harness";
+
+export default defineActionTest({
+  id: "<provider>.<resource>.<verb>",
+  environment: "<test_mode|dev_workspace|test_account>",
+
+  // Create everything the action needs. Names start with "palin-test-".
+  seed: async ({ acme, probes }) => {
+    const thing = await acme.things.create({ name: "palin-test-thing" });
+    return { thingId: thing.id };
+  },
+
+  // Plain JSON describing the state this action could change.
+  snapshot: async ({ acme }, fx) => acme.things.get(fx.thingId),
+  ignore: ["updated_at"],
+
+  act: async ({ acme }, fx) => acme.things.doTheAction(fx.thingId),
+
+  // The candidate undo, or null when no undo is expected (R5).
+  undo: async ({ acme }, fx) => acme.things.undoTheAction(fx.thingId),
+
+  probes: ["webhook"],
+  expect: {
+    class: "R3",
+    residue: ["webhook"],        // kinds a probe must observe
+    documented_residue: [],      // kinds no probe can observe, from doc evidence
+    window: null,                // R4: the doc-cited window or window_condition
+  },
+
+  // Always runs, even after a failure.
+  cleanup: async ({ acme }, fx) => acme.things.delete(fx.thingId),
+});
