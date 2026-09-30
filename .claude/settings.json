@@ -37,6 +37,7 @@
       "Bash(npm publish *)",
       "Bash(git push *)",
       "Bash(gh *)",
+      "Bash(aws *)",
       "Bash(*wrangler deploy*)",
       "Bash(*wrangler secret*)"
     ],
@@ -46,7 +47,13 @@
       "Edit(**/.env)",
       "Edit(**/.env.*)",
       "Read(~/.aws/**)",
-      "Read(~/.ssh/**)"
+      "Read(~/.ssh/**)",
+      "Edit(~/.aws/**)",
+      "Edit(~/.ssh/**)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Edit(**/*.pem)",
+      "Edit(**/*.key)"
     ]
   },
   "hooks": {
