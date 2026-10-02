@@ -1,0 +1,36 @@
+# Fictional provider for the schema tests (docs/SCHEMA.md uses the same example).
+id: acme
+name: Acme Billing
+docs_url: https://docs.acme.example
+api_reference_url: https://docs.acme.example/api
+openapi_url: null
+changelog_url: https://docs.acme.example/changelog
+versioning: "Date-based version header"
+current_api_version: "2026-09-01"
+terms_url: https://acme.example/legal/api
+terms:
+  status: green
+  consent: null
+  notes: "Developer terms allow testing in your own test account and publishing results."
+sandbox:
+  kind: test_mode
+  signup_url: https://acme.example/signup
+  cost: free
+  notes: "Test-mode keys start with sk_test_."
+evidence:
+  - type: doc
+    url: https://docs.acme.example/testing
+    quote: "Use test mode keys to build your integration without moving real money."
+    retrieved: 2026-09-28
+    supports: [sandbox]
+  - type: doc
+    url: https://acme.example/legal/api
+    quote: "You may test the API in your own test account and publish the results."
+    retrieved: 2026-09-28
+    supports: [terms]
+  - type: doc
+    url: https://docs.acme.example/api/versioning
+    quote: "Each request names a dated API version in the Acme-Version header."
+    retrieved: 2026-09-28
+    supports: [versioning, current_api_version]
+last_reviewed: 2026-09-28

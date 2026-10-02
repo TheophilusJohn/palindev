@@ -1,0 +1,47 @@
+id: acme.invoices.send
+provider: acme
+title: "Send an invoice"
+summary: "Finalizes a draft invoice and emails it to the customer."
+operation:
+  kind: http
+  method: POST
+  path: /v1/invoices/{invoice}/send
+api_version: "2026-09-01"
+class: R3
+flags:
+  moves_money: false
+  reaches_third_parties: true
+  changes_permissions: false
+  bulk: false
+  modifies_existing: true
+  needs_admin_scope: false
+  idempotent: "no"
+undo:
+  method: inverse_call
+  operation:
+    kind: http
+    method: POST
+    path: /v1/invoices/{invoice}/void
+  steps: []
+  window: null
+  window_condition: null
+  compensating_action: null
+  capture: []
+residue:
+  - kind: email
+    audience: external
+    note: "The customer receives the invoice email immediately."
+    observed_by: doc
+suggested_annotations:
+  readOnlyHint: false
+  destructiveHint: true
+  idempotentHint: false
+  openWorldHint: true
+recommended_policy: confirm
+confidence: documented
+evidence:
+  - type: doc
+    url: https://docs.acme.example/api/invoices/send
+    quote: "Sending an invoice finalizes it and emails it to the customer."
+    retrieved: 2026-09-28
+last_verified: 2026-09-28

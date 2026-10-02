@@ -11,14 +11,14 @@ Boxes marked **(maintainer)** are outside contact or account work that agents ca
 ### Week 1: decisions and the minimum foundation
 
 - [x] Record the validation-research decisions (D10 to D25) and move business material out of tracked docs
-- [ ] pnpm workspace (TypeScript strict, ESM, Vitest, tsup; Turborepo later if build times need it) with `packages/schema` and `packages/core`. Create the other packages when their surface is built
-- [ ] `packages/schema`: JSON Schema v0 from [SCHEMA.md](SCHEMA.md), including `operation.service`, `variants`, alias matchers, `cli_aliases`, `flags.modifies_existing`, `residue[].observed_by`, `approval_text`, `undo.capture`, provider `terms`, and `tested_on` and `vendor_paid` on sandbox runs. Generate the types. Implement offline rules V1 to V22 and V24 with one test each
-- [ ] `pnpm validate [files]` and `pnpm validate --fix`
-- [ ] `.github/workflows/ci.yml` (install, typecheck, validate, test), with a `security-reviewer` pass
-- [ ] Schema fixtures (fictional, exempt from CLAUDE.md rule 2 and D23): `packages/schema/test/fixtures/valid/data/acme/` (a green-terms provider, a valid R0, an R3 with variants, an R5 draft and a tested R2) validates with zero errors, and each `packages/schema/test/fixtures/invalid/<rule>/` data root fails only that rule. The validator takes a data root and an injectable `now`, so tests never touch `data/`
-- [ ] LICENSE (Apache-2.0) at the root; `data/LICENSE` (CC BY 4.0, with vendor-doc quotes excluded from the grant, per D15)
-- [ ] Claude Code hooks confirmed working (the guard blocks `printenv PALIN_GUARD_CHECK`, and the validation hook fires on a bad record)
-- [ ] Choose the 15 test actions on green-terms providers (GitHub REST and `gh` CLI, AWS S3 versioned deletes and similar), preferring actions whose docs are thin or conflicting. List them in `private/moat-test/actions.md`
+- [x] pnpm workspace (TypeScript strict, ESM, Vitest, tsup; Turborepo later if build times need it) with `packages/schema` and `packages/core`. Create the other packages when their surface is built
+- [x] `packages/schema`: JSON Schema v0 from [SCHEMA.md](SCHEMA.md), including `operation.service`, `variants`, alias matchers, `cli_aliases`, `flags.modifies_existing`, `residue[].observed_by`, `approval_text`, `undo.capture`, provider `terms`, and `tested_on` and `vendor_paid` on sandbox runs. Generate the types. Implement offline rules V1 to V22 and V24 with one test each
+- [x] `pnpm validate [files]` and `pnpm validate --fix`
+- [x] `.github/workflows/ci.yml` (install, typecheck, validate, test), with a `security-reviewer` pass
+- [x] Schema fixtures (fictional, exempt from CLAUDE.md rule 2 and D23): `packages/schema/test/fixtures/valid/data/acme/` (a green-terms provider, a valid R0, an R3 with variants, an R5 draft and a tested R2) validates with zero errors, and each `packages/schema/test/fixtures/invalid/<rule>/` data root fails only that rule. The validator takes a data root and an injectable `now`, so tests never touch `data/`
+- [x] LICENSE (Apache-2.0) at the root; `data/LICENSE` (CC BY 4.0, with vendor-doc quotes excluded from the grant, per D15)
+- [x] Claude Code hooks confirmed working (the guard blocks `printenv PALIN_GUARD_CHECK`, and the validation hook fires on a bad record)
+- [x] Choose the 15 test actions on green-terms providers (GitHub REST and `gh` CLI, AWS S3 versioned deletes and similar), preferring actions whose docs are thin or conflicting. List them in `private/moat-test/actions.md`
 - [ ] **(maintainer)** AWS sandbox account per D14; GitHub test org with a private GitHub App registered under it and installed only on it (the acting identity), and one machine account as the observer with a classic token scoped to `notifications` and `read:org` only; never your personal account (D25)
 - [ ] **(maintainer)** Claim handles: npm org `palindev`, GitHub org `palindev`. PyPI `palindev` is free, but PyPI names are taken by a first real upload, not reserved
 - [ ] **(maintainer)** Target list and call script from `private/PLAN.md`; send the first 8 messages

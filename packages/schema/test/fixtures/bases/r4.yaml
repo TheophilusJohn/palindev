@@ -1,0 +1,44 @@
+id: acme.invoices.delete
+provider: acme
+title: "Delete a draft invoice"
+summary: "Moves a draft invoice to the trash, where it stays for 30 days."
+operation:
+  kind: http
+  method: DELETE
+  path: /v1/invoices/{invoice}
+api_version: "2026-09-01"
+class: R4
+flags:
+  moves_money: false
+  reaches_third_parties: false
+  changes_permissions: false
+  bulk: false
+  modifies_existing: true
+  needs_admin_scope: false
+  idempotent: natural
+undo:
+  method: restore
+  operation:
+    kind: http
+    method: POST
+    path: /v1/invoices/{invoice}/restore
+  steps: []
+  window: P30D
+  window_condition: null
+  compensating_action: null
+  capture: []
+residue: []
+suggested_annotations:
+  readOnlyHint: false
+  destructiveHint: true
+  idempotentHint: true
+  openWorldHint: true
+recommended_policy: confirm
+approval_text: "Moves the draft to the trash; it can be restored for 30 days, then it's gone."
+confidence: documented
+evidence:
+  - type: doc
+    url: https://docs.acme.example/api/invoices/delete
+    quote: "Deleted draft invoices stay in the trash for 30 days and can be restored until then."
+    retrieved: 2026-09-28
+last_verified: 2026-09-28

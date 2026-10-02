@@ -90,12 +90,12 @@ Rule: surfaces never read YAML directly. They read the compiled bundle through `
 | Layer | Choice |
 | --- | --- |
 | Runtime | Node 22 LTS or newer, ESM only |
-| Package manager | pnpm via Corepack, workspaces; Turborepo later if build times need it |
-| Language | TypeScript, `strict: true` |
+| Package manager | pnpm 11, pinned by `packageManager` in `package.json` (installed directly locally, since Node 25+ no longer ships Corepack; `pnpm/action-setup` in CI), workspaces; dependency build scripts are off (`allowBuilds`); Turborepo later if build times need it |
+| Language | TypeScript 6, `strict: true`; not 7 yet, because tsup's `.d.ts` build needs the JS API that TypeScript 7 doesn't ship (D26) |
 | Tests | Vitest |
-| Build | tsup |
+| Build | tsup (no longer maintained; its `.d.ts` build sets `ignoreDeprecations: "6.0"`, D26). In the repo, `pnpm validate` runs the validator's TypeScript source with tsx, so it needs no build |
 | YAML | `yaml` package with the YAML 1.2 core schema (keeps key order and comments) |
-| Validation | JSON Schema as source of truth, Ajv 2020 with `ajv-formats`; TypeScript types generated with `json-schema-to-typescript` |
+| Validation | JSON Schema as source of truth, Ajv 2020; `format` keywords are annotations and rule V15 checks URLs, dates and durations, so `ajv-formats` isn't used (D26); TypeScript types generated with `json-schema-to-typescript` |
 | Enforcement | Claude Code PreToolUse hook, packaged as a Claude Code plugin (D17) |
 | MCP | Official TypeScript SDK, `@modelcontextprotocol/sdk`, when the MCP server is built |
 | Website | Astro static site, Pagefind search, Cloudflare Pages |

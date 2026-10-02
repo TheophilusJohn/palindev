@@ -2,7 +2,7 @@
 
 **Can an AI agent undo this?** Palin is independent, re-verified evidence of what agent actions on real SaaS APIs actually do: what escapes, whether and how it can be undone, and for how long. Every answer comes with receipts: a quoted vendor doc for each field, or a sandbox run with a hashed trace.
 
-> **Status: pre-alpha.** Building in public. Nothing here is authoritative yet. First scope: GitHub (REST, `gh` CLI and MCP tools) and AWS actions that destroy data. Website: [palin.dev](https://palin.dev)
+> **Status: pre-alpha.** Building in public. Nothing here is authoritative yet, and there are no records yet. First scope: GitHub (REST, `gh` CLI and MCP tools) and AWS actions that destroy data. The website, palin.dev, isn't live yet.
 
 ## Why
 
@@ -68,6 +68,6 @@ Not open for outside contributions yet; a contributor agreement and guidelines a
 
 ## License
 
-Code: Apache-2.0. Data in `data/`: CC BY 4.0, which allows commercial use with attribution. Quotes from vendor documentation inside records belong to their owners and are not covered by that grant. Commercial data feeds with freshness commitments are available through [palin.dev](https://palin.dev).
+Code: [Apache-2.0](LICENSE). Data in `data/`: [CC BY 4.0](data/LICENSE), which allows commercial use with attribution. Quotes from vendor documentation inside records belong to their owners and are not covered by that grant. Commercial data feeds with freshness commitments are planned but not available yet.
 
 Records are advisory and provided without warranty. You remain responsible for your own approval policies.

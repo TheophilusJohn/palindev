@@ -1,0 +1,47 @@
+id: acme.invoices.get
+provider: acme
+title: "Get an invoice"
+summary: "Returns one invoice by id."
+operation:
+  kind: http
+  service: billing
+  method: GET
+  path: /v1/invoices/{invoice}
+api_version: "2026-09-01"
+mcp_tool_aliases:
+  - server: acme/acme-mcp
+    tool: get_invoice
+cli_aliases:
+  - command: acme invoices get
+class: R0
+flags:
+  moves_money: false
+  reaches_third_parties: false
+  changes_permissions: false
+  bulk: false
+  modifies_existing: false
+  needs_admin_scope: false
+  idempotent: natural
+undo:
+  method: not_applicable
+  operation: null
+  steps: []
+  window: null
+  window_condition: null
+  compensating_action: null
+  capture: []
+residue: []
+suggested_annotations:
+  readOnlyHint: true
+  destructiveHint: false
+  idempotentHint: true
+  openWorldHint: true
+recommended_policy: allow
+confidence: documented
+evidence:
+  - type: doc
+    url: https://docs.acme.example/api/invoices/get
+    quote: "Returns the invoice with the given id. The call changes nothing."
+    retrieved: 2026-09-28
+    supports: [summary, operation, class]
+last_verified: 2026-09-28

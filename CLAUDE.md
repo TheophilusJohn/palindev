@@ -17,7 +17,7 @@ An open, tested database of whether AI agent actions on SaaS APIs can be undone,
 Some of these don't exist yet; `docs/ROADMAP.md` says when each lands.
 
 - `pnpm install`
-- `pnpm validate [files...]`, `pnpm validate --fix`, `pnpm validate --quotes` (network quote check, V23)
+- `pnpm validate [files...]`, `pnpm validate --root <dir>`, `pnpm validate --fix`, `pnpm validate --quotes` (network quote check, V23)
 - `pnpm test`, `pnpm typecheck`, `pnpm build`, `pnpm build:bundle`
 - `pnpm harness run <id>` (mock), `pnpm harness run --sandbox <id>` (real sandbox calls; maintainer only)
 - `pnpm harness evidence <run_id> [--write]`
