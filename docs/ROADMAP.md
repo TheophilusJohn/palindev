@@ -18,7 +18,7 @@ Boxes marked **(maintainer)** are outside contact or account work that agents ca
 - [x] Schema fixtures (fictional, exempt from CLAUDE.md rule 2 and D23): `packages/schema/test/fixtures/valid/data/acme/` (a green-terms provider, a valid R0, an R3 with variants, an R5 draft and a tested R2) validates with zero errors, and each `packages/schema/test/fixtures/invalid/<rule>/` data root fails only that rule. The validator takes a data root and an injectable `now`, so tests never touch `data/`
 - [x] LICENSE (Apache-2.0) at the root; `data/LICENSE` (CC BY 4.0, with vendor-doc quotes excluded from the grant, per D15)
 - [x] Claude Code hooks confirmed working (the guard blocks `printenv PALIN_GUARD_CHECK`, and the validation hook fires on a bad record)
-- [ ] Choose the 15 test actions on green-terms providers (GitHub REST and `gh` CLI, AWS S3 versioned deletes and similar), preferring actions whose docs are thin or conflicting. List them in `private/moat-test/actions.md`
+- [x] Choose the 15 test actions on green-terms providers (GitHub REST and `gh` CLI, AWS S3 versioned deletes and similar), preferring actions whose docs are thin or conflicting. List them in `private/moat-test/actions.md`
 - [ ] **(maintainer)** AWS sandbox account per D14; GitHub test org with a private GitHub App registered under it and installed only on it (the acting identity), and one machine account as the observer with a classic token scoped to `notifications` and `read:org` only; never your personal account (D25)
 - [ ] **(maintainer)** Claim handles: npm org `palindev`, GitHub org `palindev`. PyPI `palindev` is free, but PyPI names are taken by a first real upload, not reserved
 - [ ] **(maintainer)** Target list and call script from `private/PLAN.md`; send the first 8 messages
