@@ -24,7 +24,7 @@ CI runs every action test in mock mode on every PR. Sandbox runs happen only on 
 7. **Undo:** call the candidate undo, if the test defines one.
 8. **Snapshot after undo:** compare to the before snapshot, ignoring volatile fields.
 9. **Collect residue:** stop probes and gather events tied to this run. Tag each one `observed_by: probe` or `proxy`, as the capability declaration says for its channel.
-10. **Classify:** compute `observed_class` with the decision guide in [SCHEMA.md](SCHEMA.md#how-to-pick-a-class), from the observed diffs and residue plus any `expect.window` and `expect.documented_residue` the test declares from doc evidence. The trace tags declared residue `observed_by: doc` and a declared window `source: doc`, so a reader can see what was observed and what was taken from docs. A missing event counts as "nothing escaped" only on a channel the capability declaration marks `probe`; everywhere else silence proves nothing, and the trace lists those channels as unobserved.
+10. **Classify:** compute `observed_class` with the decision guide in [SCHEMA.md](SCHEMA.md#how-to-pick-a-class), from the observed diffs and residue plus any `expect.window` and `expect.documented_residue` the test declares from doc evidence. The trace tags declared residue `observed_by: doc` and a declared window `source: doc`, so a reader can see what was observed and what was taken from docs. A missing event counts as "nothing escaped" only on a channel the capability declaration marks `probe`; everywhere else silence proves nothing, and the trace lists those channels as unobserved. A [condition edge](#condition-edges) the test exercised can also set the window condition, tagged `source: run` (D27).
 11. **Write the trace:** keep only what [Trace format](#trace-format) allows, then redact, canonicalize and hash (SHA-256). A sandbox `pass` trace is saved to `runs/YYYY/MM/<run_id>.json`. `fail` and `inconclusive` traces are saved to `runs/raw/<run_id>.json` (gitignored), and so is a `pass` trace that shows residue the record doesn't list, until the maintainer decides ([D22](#when-a-run-contradicts-the-docs)). Mock traces go only to `.harness-tmp/`. A trace leaves `runs/raw/` only when the maintainer says so.
 12. **Cleanup:** delete fixtures, even when a step failed.
 
@@ -53,6 +53,9 @@ export default defineActionTest({
   ignore: ["updated_at", "etag"],
   act: async ({ acme }, fx) => acme.invoices.send(fx.invoiceId),
   undo: async ({ acme }, fx) => acme.invoices.void(fx.invoiceId), // or null when no undo is expected
+  condition_edges: [                      // optional: conditions after which the undo may stop working (D27)
+    { name: "invoice paid", apply: async ({ acme }, fx) => acme.invoices.pay(fx.invoiceId) },
+  ],
   probes: ["mailbox", "webhook"],
   expect: {
     class: "R3",
@@ -147,6 +150,24 @@ Mailbox probe storage is secret-bearing: vendor emails carry verification links,
 
 Windows of one hour or less are tested at both edges. Longer windows (such as 30-day trash retention) are tested for undo inside the window only; the test declares the doc-cited window in `expect.window`, so an R4 record can still reach `tested`, and the record's `notes` say the window length itself is doc-cited. The same applies to residue no probe can observe, through `expect.documented_residue`.
 
+### Condition edges
+
+A test lists `condition_edges` when the undo may stop working once something else happens (decision step 4 in [SCHEMA.md](SCHEMA.md#how-to-pick-a-class)). For each edge, the runner:
+
+1. seeds a fresh fixture;
+2. runs the act;
+3. applies the edge's `apply` step;
+4. runs the undo.
+
+What the run records depends on the result:
+
+- **The plain undo succeeds and the undo after an edge fails.** The run classifies R4 and records `window_condition` with `source: run`, naming the edge, so `expect.window` isn't needed for it.
+- **Both succeed.** The edge is not a condition, and the trace says so.
+
+The trace lists each edge with the undo's outcome. Each edge adds a fixture set, so declare edges only for conditions the docs leave open.
+
+A run-discovered condition that vendor docs don't state is a finding under [D22](#when-a-run-contradicts-the-docs): its trace stays in `runs/raw/` until the maintainer releases it (D27).
+
 ## Trace format
 
 ```json
@@ -168,6 +189,7 @@ Windows of one hour or less are tested at both edges. Longer windows (such as 30
     { "probe": "mailbox", "kind": "email", "audience": "external", "observed_by": "probe", "at": "2026-09-28T14:02:13Z", "summary": "Invoice email to customer" }
   ],
   "documented_residue": [],
+  "condition_edges": [{ "name": "invoice paid", "undo_after_edge": "failed", "source": "run" }],
   "unobserved_channels": ["audit_log:vendor"],
   "expected_class": "R3",
   "observed_class": "R3",
@@ -175,7 +197,7 @@ Windows of one hour or less are tested at both edges. Longer windows (such as 30
 }
 ```
 
-`mode` is `mock` or `sandbox`. A trace holds only each step's request method, path template, status and duration; state hashes; diffs of snapshot fields; residue summaries; and the run's `tested_on`. It never holds raw vendor response payloads, full snapshots, webhook bodies or email bodies. D13 bars publishing raw vendor payloads, and some providers' terms need care here (Stripe among them). Committed traces are published with tested records as their receipts, so nothing goes into one that couldn't be public.
+`mode` is `mock` or `sandbox`. A trace holds only each step's request method, path template, status and duration; state hashes; diffs of snapshot fields; residue summaries; condition-edge outcomes; and the run's `tested_on`. It never holds raw vendor response payloads, full snapshots, webhook bodies or email bodies. D13 bars publishing raw vendor payloads, and some providers' terms need care here (Stripe among them). Committed traces are published with tested records as their receipts, so nothing goes into one that couldn't be public.
 
 Redaction removes authorization headers, cookies, tokens, keys and any secret-looking string, including in diff values, before hashing. The hash covers the redacted, canonical JSON, so anyone can recompute it from the committed trace.
 
