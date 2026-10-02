@@ -68,6 +68,6 @@ Not open for outside contributions yet; a contributor agreement and guidelines a
 
 ## License
 
-Code: Apache-2.0. Data in `data/`: CC BY 4.0, which allows commercial use with attribution. Quotes from vendor documentation inside records belong to their owners and are not covered by that grant. Commercial data feeds with freshness commitments are available through [palin.dev](https://palin.dev).
+Code: [Apache-2.0](LICENSE). Data in `data/`: [CC BY 4.0](data/LICENSE), which allows commercial use with attribution. Quotes from vendor documentation inside records belong to their owners and are not covered by that grant. Commercial data feeds with freshness commitments are available through [palin.dev](https://palin.dev).
 
 Records are advisory and provided without warranty. You remain responsible for your own approval policies.
