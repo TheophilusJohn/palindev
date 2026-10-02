@@ -13,7 +13,7 @@ title: "<Short and imperative, such as Send an invoice>"
 summary: <One plain sentence on what the call does.>
 operation:
   kind: http                      # http | graphql | rpc
-  # service: <lowercase, such as s3>   # required when provider is aws; delete otherwise
+  # service: <lowercase, such as s3>   # optional; required when provider is aws
   method: <GET|POST|PUT|PATCH|DELETE>   # http only; delete for graphql and rpc
   path: </v1/resource/{id}/verb>  # http: path template; rpc: method name; graphql: root field name
 api_version: "<version, or unversioned>"   # always quoted
