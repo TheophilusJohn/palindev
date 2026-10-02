@@ -1,0 +1,40 @@
+id: acme.invoices.mark_viewed
+provider: acme
+title: "Mark an invoice as viewed"
+summary: "Sets the viewed marker on an invoice for the calling user."
+operation:
+  kind: http
+  method: POST
+  path: /v1/invoices/{invoice}/viewed
+api_version: "2026-09-01"
+class: R1
+flags:
+  moves_money: false
+  reaches_third_parties: false
+  changes_permissions: false
+  bulk: false
+  modifies_existing: false
+  needs_admin_scope: false
+  idempotent: natural
+undo:
+  method: none
+  operation: null
+  steps: []
+  window: null
+  window_condition: null
+  compensating_action: null
+  capture: []
+residue: []
+suggested_annotations:
+  readOnlyHint: false
+  destructiveHint: false
+  idempotentHint: true
+  openWorldHint: true
+recommended_policy: allow_and_log
+confidence: documented
+evidence:
+  - type: doc
+    url: https://docs.acme.example/api/invoices/viewed
+    quote: "Marks the invoice as viewed by the calling user. Only that user sees the marker."
+    retrieved: 2026-09-28
+last_verified: 2026-09-28

@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://palin.dev/schema/v0/provider.schema.json",
+  "title": "ProviderFile",
+  "description": "A provider's data/<provider>/_provider.yaml: where its docs live, how it versions its API, its sandbox, and whether its terms let Palin test it and publish results (D13). Defined in docs/SCHEMA.md. Provider files have no draft state. format keywords are annotations: rule V15 checks URLs and dates.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "name",
+    "docs_url",
+    "api_reference_url",
+    "openapi_url",
+    "changelog_url",
+    "versioning",
+    "current_api_version",
+    "terms_url",
+    "terms",
+    "sandbox",
+    "evidence",
+    "last_reviewed"
+  ],
+  "properties": {
+    "id": { "$ref": "#/$defs/providerId" },
+    "name": { "type": "string", "minLength": 1 },
+    "docs_url": { "type": "string", "format": "uri" },
+    "api_reference_url": { "type": "string", "format": "uri" },
+    "openapi_url": { "type": ["string", "null"], "format": "uri" },
+    "changelog_url": { "type": "string", "format": "uri" },
+    "versioning": { "type": "string", "minLength": 1 },
+    "current_api_version": { "type": "string", "minLength": 1 },
+    "terms_url": { "type": "string", "format": "uri" },
+    "terms": { "$ref": "#/$defs/terms" },
+    "sandbox": { "$ref": "#/$defs/sandbox" },
+    "evidence": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/providerEvidenceItem" } },
+    "last_reviewed": { "type": "string", "format": "date" }
+  },
+  "$defs": {
+    "providerId": {
+      "title": "ProviderId",
+      "description": "Lowercase a-z, 0-9 and _; equals the provider's directory under data/",
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "consent": {
+      "title": "Consent",
+      "description": "Written consent from the vendor; only the maintainer fills it in (D23)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["date", "from", "reference"],
+      "properties": {
+        "date": { "type": "string", "format": "date" },
+        "from": { "type": "string", "minLength": 1 },
+        "reference": { "type": "string", "minLength": 1 }
+      }
+    },
+    "terms": {
+      "title": "Terms",
+      "description": "May Palin test this provider and publish the results? (D13, rule V24)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "consent", "notes"],
+      "properties": {
+        "status": { "enum": ["green", "yellow", "red"] },
+        "consent": { "anyOf": [{ "$ref": "#/$defs/consent" }, { "type": "null" }] },
+        "notes": { "type": "string", "minLength": 1 }
+      }
+    },
+    "sandbox": {
+      "title": "Sandbox",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "signup_url", "cost", "notes"],
+      "properties": {
+        "kind": { "enum": ["test_mode", "dev_workspace", "test_account", "none"] },
+        "signup_url": { "type": ["string", "null"], "format": "uri" },
+        "cost": { "enum": ["free", "paid", "unknown"] },
+        "notes": { "type": "string", "minLength": 1 }
+      },
+      "if": { "properties": { "kind": { "const": "none" } }, "required": ["kind"] },
+      "else": { "properties": { "signup_url": { "type": "string" } } }
+    },
+    "fieldPath": {
+      "title": "FieldPath",
+      "description": "A record field path such as undo.window or variants[0].residue",
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\[\\d+\\])?(\\.[A-Za-z_][A-Za-z0-9_]*(\\[\\d+\\])?)*$"
+    },
+    "supports": {
+      "title": "Supports",
+      "description": "The fields this evidence item supports",
+      "type": "array",
+      "items": { "$ref": "#/$defs/fieldPath" }
+    },
+    "docEvidence": {
+      "title": "DocEvidence",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "url", "quote", "retrieved"],
+      "properties": {
+        "type": { "const": "doc" },
+        "url": { "type": "string", "format": "uri" },
+        "quote": { "type": "string", "minLength": 1 },
+        "retrieved": { "type": "string", "format": "date" },
+        "supports": { "$ref": "#/$defs/supports" }
+      }
+    },
+    "vendorStatementEvidence": {
+      "title": "VendorStatementEvidence",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "url", "date"],
+      "properties": {
+        "type": { "const": "vendor_statement" },
+        "url": { "type": "string", "format": "uri" },
+        "date": { "type": "string", "format": "date" },
+        "quote": { "type": "string", "minLength": 1 },
+        "supports": { "$ref": "#/$defs/supports" }
+      }
+    },
+    "providerEvidenceItem": {
+      "title": "ProviderEvidence",
+      "description": "doc and vendor_statement items only, never todo",
+      "type": "object",
+      "required": ["type"],
+      "discriminator": { "propertyName": "type" },
+      "oneOf": [
+        { "$ref": "#/$defs/docEvidence" },
+        { "$ref": "#/$defs/vendorStatementEvidence" }
+      ]
+    }
+  }
+}

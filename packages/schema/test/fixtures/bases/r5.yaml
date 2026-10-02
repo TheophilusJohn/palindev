@@ -1,0 +1,48 @@
+id: acme.charges.create
+provider: acme
+title: "Charge a customer"
+summary: "Charges the saved card of a customer."
+operation:
+  kind: http
+  method: POST
+  path: /v1/charges
+api_version: "2026-09-01"
+class: R5
+flags:
+  moves_money: true
+  reaches_third_parties: false
+  changes_permissions: false
+  bulk: false
+  modifies_existing: false
+  needs_admin_scope: false
+  idempotent: key
+undo:
+  method: compensating_action
+  operation:
+    kind: http
+    method: POST
+    path: /v1/refunds
+  steps: []
+  window: null
+  window_condition: null
+  compensating_action: "Refund the charge; Acme keeps the processing fee."
+  capture: [id]
+residue:
+  - kind: fee_retained
+    audience: actor
+    note: "Acme keeps the processing fee when a charge is refunded."
+    observed_by: doc
+suggested_annotations:
+  readOnlyHint: false
+  destructiveHint: true
+  idempotentHint: false
+  openWorldHint: true
+recommended_policy: confirm_strong
+approval_text: "Charges the card now; a refund returns the money but Acme keeps the fee."
+confidence: documented
+evidence:
+  - type: doc
+    url: https://docs.acme.example/api/charges/create
+    quote: "A charge moves money immediately. Refunding it returns the amount but not the processing fee."
+    retrieved: 2026-09-28
+last_verified: 2026-09-28

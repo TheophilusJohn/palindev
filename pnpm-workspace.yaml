@@ -1,0 +1,9 @@
+packages:
+  - packages/*
+
+# pnpm 11 refuses to install while a dependency's build script is unreviewed.
+# Neither script is needed: esbuild finds its binary in its platform package,
+# and fsevents (macOS only) ships prebuilt.
+allowBuilds:
+  esbuild: false
+  fsevents: false

@@ -1,0 +1,43 @@
+id: acme.tags.update
+provider: acme
+title: "Update a tag"
+summary: "Changes the name or color of a tag."
+operation:
+  kind: http
+  method: PATCH
+  path: /v1/tags/{tag}
+api_version: "2026-09-01"
+class: R2
+flags:
+  moves_money: false
+  reaches_third_parties: false
+  changes_permissions: false
+  bulk: false
+  modifies_existing: true
+  needs_admin_scope: false
+  idempotent: natural
+undo:
+  method: inverse_call
+  operation:
+    kind: http
+    method: PATCH
+    path: /v1/tags/{tag}
+  steps: []
+  window: null
+  window_condition: null
+  compensating_action: null
+  capture: []
+residue: []
+suggested_annotations:
+  readOnlyHint: false
+  destructiveHint: true
+  idempotentHint: true
+  openWorldHint: true
+recommended_policy: allow_and_log
+confidence: documented
+evidence:
+  - type: doc
+    url: https://docs.acme.example/api/tags/update
+    quote: "Updates the name or color of a tag. Send the previous values to change it back."
+    retrieved: 2026-09-28
+last_verified: 2026-09-28

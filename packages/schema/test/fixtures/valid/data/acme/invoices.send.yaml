@@ -1,0 +1,98 @@
+id: acme.invoices.send
+provider: acme
+title: "Send an invoice"
+summary: "Finalizes a draft invoice and emails it to the customer."
+operation:
+  kind: http
+  method: POST
+  path: /v1/invoices/{invoice}/send
+api_version: "2026-09-01"
+mcp_tool_aliases:
+  - server: acme/acme-mcp
+    tool: invoice_write
+    match:
+      method: send
+  - server: acme/acme-mcp
+    tool: acme_api_write
+    operation_from_args:
+      method: method
+      path: path
+cli_aliases:
+  - command: acme api
+    match:
+      method: POST
+      path: /v1/invoices/{invoice}/send
+class: R3
+flags:
+  moves_money: false
+  reaches_third_parties: true
+  changes_permissions: false
+  bulk: false
+  modifies_existing: true
+  needs_admin_scope: false
+  idempotent: "no"
+undo:
+  method: inverse_call
+  operation:
+    kind: http
+    method: POST
+    path: /v1/invoices/{invoice}/void
+  steps: []
+  window: null
+  window_condition: null
+  compensating_action: null
+  capture: []
+residue:
+  - kind: email
+    audience: external
+    when: "if the customer has an email address"
+    note: "The customer receives the invoice email immediately; voiding sends a second email."
+    observed_by: doc
+suggested_annotations:
+  readOnlyHint: false
+  destructiveHint: true
+  idempotentHint: false
+  openWorldHint: true
+recommended_policy: confirm
+approval_text: "Emails the customer now; voiding later sends a second email."
+variants:
+  - when:
+      args: { send_email: false }
+    class: R2
+    flags: { reaches_third_parties: false }
+    residue: []
+    recommended_policy: allow_and_log
+    approval_text: null
+    notes: "No email is sent when send_email is false."
+  - when:
+      settings: { invoice_emails: "off" }
+      plan: [free]
+    class: R2
+    flags: { reaches_third_parties: false }
+    residue: []
+    recommended_policy: allow_and_log
+    approval_text: null
+confidence: documented
+evidence:
+  - type: doc
+    url: https://docs.acme.example/api/invoices/send
+    quote: "Sending an invoice finalizes it and emails it to the customer."
+    retrieved: 2026-09-28
+    supports: [summary, flags, residue, approval_text]
+  - type: doc
+    url: https://docs.acme.example/api/invoices/void
+    quote: "Voiding a sent invoice cancels it and emails the customer a notice."
+    retrieved: 2026-09-28
+    supports: [undo]
+  - type: doc
+    url: https://docs.acme.example/api/invoices/send#send_email
+    quote: "Set send_email to false to finalize the invoice without emailing the customer."
+    retrieved: 2026-09-28
+    supports: ["variants[0].when", "variants[0].class", "variants[0].flags", "variants[0].residue", "variants[0].recommended_policy", "variants[0].approval_text"]
+  - type: doc
+    url: https://docs.acme.example/settings/invoice-emails
+    quote: "On the Free plan, turning invoice emails off stops every invoice email."
+    retrieved: 2026-09-28
+    supports: ["variants[1].when", "variants[1].class", "variants[1].flags", "variants[1].residue", "variants[1].recommended_policy", "variants[1].approval_text"]
+last_verified: 2026-09-28
+related: [acme.invoices.get]

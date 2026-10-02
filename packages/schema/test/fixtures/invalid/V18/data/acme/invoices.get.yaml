@@ -1,0 +1,42 @@
+id: acme.invoices.get
+title: "Get an invoice"
+provider: acme
+summary: "Returns one invoice by id."
+operation:
+  kind: http
+  method: GET
+  path: /v1/invoices/{invoice}
+api_version: 2026-09-01
+class: R0
+flags:
+  moves_money: false
+  reaches_third_parties: false
+  changes_permissions: false
+  bulk: false
+  modifies_existing: false
+  needs_admin_scope: false
+  idempotent: natural
+undo:
+  # nothing to undo for a read
+  operation: null
+  method: not_applicable
+  steps: []
+  window: null
+  window_condition: null
+  compensating_action: null
+  capture: []
+residue: []
+suggested_annotations:
+  readOnlyHint: true
+  destructiveHint: false
+  idempotentHint: true
+  openWorldHint: true
+recommended_policy: allow
+confidence: documented
+evidence:
+  - type: doc
+    supports: [summary]
+    url: https://docs.acme.example/api/invoices/get
+    quote: "Returns the invoice with the given id. The call changes nothing."
+    retrieved: 2026-09-28
+last_verified: 2026-09-28

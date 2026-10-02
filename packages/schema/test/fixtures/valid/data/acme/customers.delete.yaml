@@ -1,0 +1,56 @@
+id: acme.customers.delete
+provider: acme
+title: "Delete a customer"
+summary: "Permanently deletes a customer and its saved payment methods."
+operation:
+  kind: http
+  method: DELETE
+  path: /v1/customers/{customer}
+mcp_tool_aliases:
+  - server: acme/acme-mcp
+    tool: delete_customer
+class: R5
+flags:
+  moves_money: false
+  reaches_third_parties: false
+  changes_permissions: false
+  bulk: false
+  modifies_existing: true
+  idempotent: natural
+undo:
+  method: none
+  operation: null
+  steps: []
+  window: null
+  window_condition: null
+  compensating_action: null
+  capture: []
+residue:
+  - kind: lost_state
+    audience: actor
+    note: "The customer id and its saved payment methods are gone for good."
+    observed_by: doc
+suggested_annotations:
+  readOnlyHint: false
+  destructiveHint: true
+  idempotentHint: true
+  openWorldHint: true
+recommended_policy: confirm_strong
+confidence: draft
+evidence:
+  - type: doc
+    url: https://docs.acme.example/api/customers/delete
+    quote: "Deleting a customer permanently removes it and its saved payment methods. This cannot be undone."
+    retrieved: 2026-09-28
+    supports: [summary, operation, class, undo, residue]
+  - type: todo
+    field: api_version
+    note: "Find the API version that documents this endpoint."
+  - type: todo
+    field: flags.needs_admin_scope
+    note: "Find whether deleting a customer needs an admin key."
+  - type: todo
+    field: approval_text
+    note: "Write it once the residue is reviewed."
+notes: |
+  Open question: does deleting a customer also void its open invoices?

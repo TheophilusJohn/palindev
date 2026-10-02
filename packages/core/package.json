@@ -1,0 +1,8 @@
+{
+  "name": "@palindev/core",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Loads Palin records, compiles the bundle and matches tool calls to records (a stub until week 3)",
+  "license": "Apache-2.0",
+  "type": "module"
+}

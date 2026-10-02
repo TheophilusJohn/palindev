@@ -1,0 +1,73 @@
+id: acme.tags.update
+provider: acme
+title: "Update a tag"
+summary: "Changes the name or color of a tag."
+operation:
+  kind: http
+  method: PATCH
+  path: /v1/tags/{tag}
+api_version: "2026-09-01"
+mcp_tool_aliases:
+  - server: acme/acme-mcp
+    tool: acme_api_write
+    operation_from_args:
+      method: method
+      path: path
+class: R2
+flags:
+  moves_money: false
+  reaches_third_parties: false
+  changes_permissions: false
+  bulk: false
+  modifies_existing: true
+  needs_admin_scope: false
+  idempotent: natural
+undo:
+  method: inverse_call
+  operation:
+    kind: http
+    method: PATCH
+    path: /v1/tags/{tag}
+  steps: []
+  window: null
+  window_condition: null
+  compensating_action: null
+  capture:
+    - before: { kind: http, method: GET, path: "/v1/tags/{tag}" }
+      field: tag.name
+    - before: { kind: http, method: GET, path: "/v1/tags/{tag}" }
+      field: tag.color
+residue:
+  - kind: webhook
+    audience: actor
+    note: "A tag.updated event goes to the account's own webhook endpoints."
+    observed_by: probe
+suggested_annotations:
+  readOnlyHint: false
+  destructiveHint: true
+  idempotentHint: true
+  openWorldHint: true
+recommended_policy: allow_and_log
+confidence: tested
+evidence:
+  - type: doc
+    url: https://docs.acme.example/api/tags/update
+    quote: "Updates the name or color of a tag. Send the previous values to change it back."
+    retrieved: 2026-09-28
+    supports: [summary, undo]
+  - type: sandbox_run
+    run_id: 2026-09-29T10-15-00Z_acme.tags.update_cd34ef
+    date: 2026-09-29
+    environment: test_mode
+    result: pass
+    observed_class: R2
+    trace_sha256: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+    trace_path: runs/2026/09/2026-09-29T10-15-00Z_acme.tags.update_cd34ef.json
+    tested_on:
+      plan: "free"
+      settings: {}
+      variant: null
+    vendor_paid: false
+    supports: [class, undo, residue]
+last_verified: 2026-09-29
+notes: "Fictional record. The sandbox owner in this fixture is owner@example.com."

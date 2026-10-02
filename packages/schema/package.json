@@ -1,0 +1,40 @@
+{
+  "name": "@palindev/schema",
+  "version": "0.0.0",
+  "private": true,
+  "description": "JSON Schemas, generated types and the offline validator for Palin records",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./record.schema.json": "./record.schema.json",
+    "./provider.schema.json": "./provider.schema.json"
+  },
+  "bin": {
+    "palin-validate": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "record.schema.json",
+    "provider.schema.json"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "generate": "tsx scripts/generate-types.ts"
+  },
+  "dependencies": {
+    "ajv": "^8.20.0",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "json-schema-to-typescript": "^16.0.0"
+  }
+}

@@ -1,0 +1,25 @@
+id: acme
+name: Acme Billing
+docs_url: https://docs.acme.example
+api_reference_url: https://docs.acme.example/api
+openapi_url: null
+changelog_url: https://docs.acme.example/changelog
+versioning: "Date-based version header"
+current_api_version: "2026-09-01"
+terms_url: https://acme.example/legal/api
+terms:
+  status: green
+  consent: null
+  notes: "Fictional provider for the schema tests."
+sandbox:
+  kind: test_mode
+  signup_url: https://acme.example/signup
+  cost: free
+  notes: "Test-mode keys start with sk_test_."
+evidence:
+  - type: doc
+    url: https://acme.example/legal/api
+    quote: "You may test the API in your own test account and publish the results."
+    retrieved: 2026-09-28
+    supports: [terms]
+last_reviewed: 2026-09-28

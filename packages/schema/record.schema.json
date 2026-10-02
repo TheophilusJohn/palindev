@@ -1,0 +1,412 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://palin.dev/schema/v0/record.schema.json",
+  "title": "PalinRecord",
+  "description": "One vendor API action: whether and how it can be undone, for how long, and what escapes first. Defined in docs/SCHEMA.md; rules V1 to V24 add the checks JSON Schema can't express. format keywords are annotations: rule V15 checks URLs, dates and durations.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "provider", "title", "operation", "class", "confidence", "evidence"],
+  "properties": {
+    "id": { "$ref": "#/$defs/recordId" },
+    "provider": { "$ref": "#/$defs/providerId" },
+    "title": { "type": "string", "minLength": 1 },
+    "summary": { "type": "string", "minLength": 1 },
+    "operation": { "$ref": "#/$defs/operation" },
+    "api_version": { "type": "string", "minLength": 1 },
+    "mcp_tool_aliases": { "type": "array", "items": { "$ref": "#/$defs/mcpToolAlias" } },
+    "cli_aliases": { "type": "array", "items": { "$ref": "#/$defs/cliAlias" } },
+    "class": { "$ref": "#/$defs/reversibilityClass" },
+    "flags": { "$ref": "#/$defs/flags" },
+    "undo": { "$ref": "#/$defs/undo" },
+    "residue": { "type": "array", "items": { "$ref": "#/$defs/residueItem" } },
+    "suggested_annotations": { "$ref": "#/$defs/suggestedAnnotations" },
+    "recommended_policy": { "$ref": "#/$defs/policy" },
+    "approval_text": { "type": "string", "minLength": 1 },
+    "variants": { "type": "array", "items": { "$ref": "#/$defs/variant" } },
+    "confidence": { "$ref": "#/$defs/confidence" },
+    "evidence": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/evidenceItem" } },
+    "last_verified": { "type": "string", "format": "date" },
+    "related": { "type": "array", "items": { "$ref": "#/$defs/recordId" } },
+    "notes": { "type": "string" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "confidence": { "const": "draft" } }, "required": ["confidence"] },
+      "else": { "$ref": "#/$defs/nonDraftRequirements" }
+    },
+    {
+      "if": { "properties": { "provider": { "const": "aws" } }, "required": ["provider"] },
+      "then": { "$ref": "#/$defs/awsRequirements" }
+    }
+  ],
+  "$defs": {
+    "recordId": {
+      "title": "RecordId",
+      "description": "<provider>.<resource>.<verb>: lowercase parts of a-z, 0-9 and _, separated by dots",
+      "type": "string",
+      "pattern": "^[a-z0-9_]+(\\.[a-z0-9_]+){2,}$"
+    },
+    "providerId": {
+      "title": "ProviderId",
+      "description": "Lowercase a-z, 0-9 and _; equals the provider's directory under data/",
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "reversibilityClass": {
+      "title": "ReversibilityClass",
+      "enum": ["R0", "R1", "R2", "R3", "R4", "R5"]
+    },
+    "policy": {
+      "title": "Policy",
+      "enum": ["allow", "allow_and_log", "confirm", "confirm_strong", "block"]
+    },
+    "confidence": {
+      "title": "Confidence",
+      "enum": ["tested", "documented", "community", "draft"]
+    },
+    "operation": {
+      "title": "Operation",
+      "description": "http: method and path template; graphql: path is the root field name; rpc: path is the method name",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path"],
+      "properties": {
+        "kind": { "enum": ["http", "graphql", "rpc"] },
+        "service": {
+          "description": "Lowercase service name such as s3 or dynamodb; required when provider is aws",
+          "type": "string",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+        },
+        "method": { "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+        "path": { "type": "string", "minLength": 1 }
+      },
+      "if": { "properties": { "kind": { "const": "http" } }, "required": ["kind"] },
+      "then": { "required": ["method"] },
+      "else": { "properties": { "method": false } }
+    },
+    "scalar": {
+      "title": "Scalar",
+      "type": ["string", "number", "boolean"]
+    },
+    "matchValue": {
+      "title": "MatchValue",
+      "description": "One value, or a non-empty list meaning any of them",
+      "anyOf": [
+        { "$ref": "#/$defs/scalar" },
+        { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/scalar" } }
+      ]
+    },
+    "argMatch": {
+      "title": "ArgMatch",
+      "description": "Names mapped to required values; all listed names must match",
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/$defs/matchValue" }
+    },
+    "cliMatch": {
+      "title": "CliMatch",
+      "description": "Flag names without dashes, or path for a positional path, mapped to required values",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "pattern": "^[^-]" },
+      "additionalProperties": { "$ref": "#/$defs/matchValue" }
+    },
+    "operationFromArgs": {
+      "title": "OperationFromArgs",
+      "description": "The arguments of a generic tool that hold the HTTP method and path",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "path"],
+      "properties": {
+        "method": { "type": "string", "minLength": 1 },
+        "path": { "type": "string", "minLength": 1 }
+      }
+    },
+    "mcpToolAlias": {
+      "title": "McpToolAlias",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["server", "tool"],
+      "properties": {
+        "server": { "type": "string", "minLength": 1 },
+        "tool": { "type": "string", "minLength": 1 },
+        "match": { "$ref": "#/$defs/argMatch" },
+        "operation_from_args": { "$ref": "#/$defs/operationFromArgs" }
+      },
+      "dependentSchemas": {
+        "match": { "properties": { "operation_from_args": false } }
+      }
+    },
+    "cliAlias": {
+      "title": "CliAlias",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["command"],
+      "properties": {
+        "command": { "type": "string", "minLength": 1 },
+        "match": { "$ref": "#/$defs/cliMatch" }
+      }
+    },
+    "flags": {
+      "title": "Flags",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "moves_money": { "type": "boolean" },
+        "reaches_third_parties": { "type": "boolean" },
+        "changes_permissions": { "type": "boolean" },
+        "bulk": { "type": "boolean" },
+        "modifies_existing": { "type": "boolean" },
+        "needs_admin_scope": { "type": "boolean" },
+        "idempotent": { "enum": ["natural", "key", "no"] }
+      }
+    },
+    "captureBefore": {
+      "title": "CaptureBefore",
+      "description": "A value read before the call: the read call and the JSON path in its response",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["before", "field"],
+      "properties": {
+        "before": { "$ref": "#/$defs/operation" },
+        "field": { "type": "string", "minLength": 1 }
+      }
+    },
+    "captureItem": {
+      "title": "CaptureItem",
+      "description": "A JSON path in the action's response (such as id), or a value read before the call",
+      "anyOf": [
+        { "type": "string", "minLength": 1 },
+        { "$ref": "#/$defs/captureBefore" }
+      ]
+    },
+    "undo": {
+      "title": "Undo",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "method": { "enum": ["inverse_call", "restore", "compensating_action", "none", "not_applicable"] },
+        "operation": { "anyOf": [{ "$ref": "#/$defs/operation" }, { "type": "null" }] },
+        "steps": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "window": { "type": ["string", "null"], "format": "duration" },
+        "window_condition": { "type": ["string", "null"], "minLength": 1 },
+        "compensating_action": { "type": ["string", "null"], "minLength": 1 },
+        "capture": { "type": "array", "items": { "$ref": "#/$defs/captureItem" } }
+      }
+    },
+    "completeUndo": {
+      "title": "CompleteUndo",
+      "description": "A whole undo object, as a variant's undo must be",
+      "allOf": [{ "$ref": "#/$defs/undo" }],
+      "required": ["method", "operation", "steps", "window", "window_condition", "compensating_action", "capture"]
+    },
+    "residueItem": {
+      "title": "ResidueItem",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "audience", "note"],
+      "properties": {
+        "kind": {
+          "enum": ["notification", "email", "webhook", "fee_retained", "audit_log", "third_party_copy", "lost_state", "cache", "other"]
+        },
+        "audience": { "enum": ["actor", "workspace", "external", "vendor"] },
+        "when": { "type": "string", "minLength": 1 },
+        "note": { "type": "string", "minLength": 1 },
+        "observed_by": { "enum": ["probe", "proxy", "doc"] }
+      }
+    },
+    "suggestedAnnotations": {
+      "title": "SuggestedAnnotations",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "readOnlyHint": { "type": "boolean" },
+        "destructiveHint": { "type": "boolean" },
+        "idempotentHint": { "type": "boolean" },
+        "openWorldHint": { "type": "boolean" }
+      }
+    },
+    "variantWhen": {
+      "title": "VariantWhen",
+      "description": "All listed conditions must hold; a list of values means any of them",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "args": { "$ref": "#/$defs/argMatch" },
+        "settings": { "$ref": "#/$defs/argMatch" },
+        "plan": {
+          "anyOf": [
+            { "type": "string", "minLength": 1 },
+            { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
+          ]
+        }
+      }
+    },
+    "variant": {
+      "title": "Variant",
+      "description": "Behaviour under specific arguments, settings or plans. Absent keys inherit from the top level; an explicit null clears",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["when"],
+      "properties": {
+        "when": { "$ref": "#/$defs/variantWhen" },
+        "class": { "$ref": "#/$defs/reversibilityClass" },
+        "flags": { "$ref": "#/$defs/flags" },
+        "undo": { "$ref": "#/$defs/completeUndo" },
+        "residue": { "type": "array", "items": { "$ref": "#/$defs/residueItem" } },
+        "suggested_annotations": { "$ref": "#/$defs/suggestedAnnotations" },
+        "recommended_policy": { "$ref": "#/$defs/policy" },
+        "approval_text": { "type": ["string", "null"], "minLength": 1 },
+        "notes": { "type": ["string", "null"] }
+      }
+    },
+    "fieldPath": {
+      "title": "FieldPath",
+      "description": "A record field path such as undo.window or variants[0].residue",
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\[\\d+\\])?(\\.[A-Za-z_][A-Za-z0-9_]*(\\[\\d+\\])?)*$"
+    },
+    "supports": {
+      "title": "Supports",
+      "description": "The fields this evidence item supports",
+      "type": "array",
+      "items": { "$ref": "#/$defs/fieldPath" }
+    },
+    "docEvidence": {
+      "title": "DocEvidence",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "url", "quote", "retrieved"],
+      "properties": {
+        "type": { "const": "doc" },
+        "url": { "type": "string", "format": "uri" },
+        "quote": { "type": "string", "minLength": 1 },
+        "retrieved": { "type": "string", "format": "date" },
+        "supports": { "$ref": "#/$defs/supports" }
+      }
+    },
+    "testedOn": {
+      "title": "TestedOn",
+      "description": "What a sandbox run was observed under",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plan", "settings", "variant"],
+      "properties": {
+        "plan": { "type": ["string", "null"], "minLength": 1 },
+        "settings": { "description": "Non-default account settings that matter, by name", "type": "object", "additionalProperties": true },
+        "variant": { "type": ["integer", "null"], "minimum": 0 }
+      }
+    },
+    "sandboxRunEvidence": {
+      "title": "SandboxRunEvidence",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "run_id", "date", "environment", "result", "observed_class", "trace_sha256", "trace_path", "tested_on", "vendor_paid"],
+      "properties": {
+        "type": { "const": "sandbox_run" },
+        "run_id": { "type": "string", "minLength": 1 },
+        "date": { "type": "string", "format": "date" },
+        "environment": { "enum": ["test_mode", "dev_workspace", "test_account"] },
+        "result": { "enum": ["pass", "fail", "inconclusive"] },
+        "observed_class": { "$ref": "#/$defs/reversibilityClass" },
+        "trace_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "trace_path": { "type": "string", "pattern": "^runs/[0-9]{4}/(0[1-9]|1[0-2])/[^/]+\\.json$" },
+        "tested_on": { "$ref": "#/$defs/testedOn" },
+        "vendor_paid": { "type": "boolean" },
+        "supports": { "$ref": "#/$defs/supports" }
+      }
+    },
+    "communityEvidence": {
+      "title": "CommunityEvidence",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "url", "date", "summary"],
+      "properties": {
+        "type": { "const": "community" },
+        "url": { "type": "string", "format": "uri" },
+        "date": { "type": "string", "format": "date" },
+        "summary": { "type": "string", "minLength": 1 },
+        "supports": { "$ref": "#/$defs/supports" }
+      }
+    },
+    "vendorStatementEvidence": {
+      "title": "VendorStatementEvidence",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "url", "date"],
+      "properties": {
+        "type": { "const": "vendor_statement" },
+        "url": { "type": "string", "format": "uri" },
+        "date": { "type": "string", "format": "date" },
+        "quote": { "type": "string", "minLength": 1 },
+        "supports": { "$ref": "#/$defs/supports" }
+      }
+    },
+    "todoEvidence": {
+      "title": "TodoEvidence",
+      "description": "Missing evidence; only allowed while confidence is draft",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "field", "note"],
+      "properties": {
+        "type": { "const": "todo" },
+        "field": { "$ref": "#/$defs/fieldPath" },
+        "note": { "type": "string", "minLength": 1 }
+      }
+    },
+    "evidenceItem": {
+      "title": "Evidence",
+      "type": "object",
+      "required": ["type"],
+      "discriminator": { "propertyName": "type" },
+      "oneOf": [
+        { "$ref": "#/$defs/docEvidence" },
+        { "$ref": "#/$defs/sandboxRunEvidence" },
+        { "$ref": "#/$defs/communityEvidence" },
+        { "$ref": "#/$defs/vendorStatementEvidence" },
+        { "$ref": "#/$defs/todoEvidence" }
+      ]
+    },
+    "nonDraftRequirements": {
+      "description": "Fields every record needs unless confidence is draft",
+      "required": ["summary", "api_version", "flags", "undo", "residue", "suggested_annotations", "recommended_policy"],
+      "properties": {
+        "flags": {
+          "required": ["moves_money", "reaches_third_parties", "changes_permissions", "bulk", "modifies_existing", "needs_admin_scope", "idempotent"]
+        },
+        "undo": {
+          "required": ["method", "operation", "steps", "window", "window_condition", "compensating_action", "capture"]
+        },
+        "suggested_annotations": {
+          "required": ["readOnlyHint", "destructiveHint", "idempotentHint", "openWorldHint"]
+        }
+      }
+    },
+    "awsOperation": {
+      "description": "Every aws operation names its service",
+      "required": ["service"]
+    },
+    "awsUndo": {
+      "properties": {
+        "operation": { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/awsOperation" }] },
+        "capture": {
+          "items": {
+            "anyOf": [
+              { "type": "string" },
+              { "properties": { "before": { "$ref": "#/$defs/awsOperation" } } }
+            ]
+          }
+        }
+      }
+    },
+    "awsRequirements": {
+      "description": "Method names and S3 paths repeat across AWS services, so aws operations set service",
+      "properties": {
+        "operation": { "$ref": "#/$defs/awsOperation" },
+        "undo": { "$ref": "#/$defs/awsUndo" },
+        "variants": { "items": { "properties": { "undo": { "$ref": "#/$defs/awsUndo" } } } }
+      }
+    }
+  }
+}
