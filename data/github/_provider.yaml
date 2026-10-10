@@ -1,0 +1,139 @@
+# GitHub REST API. terms.status stays red until the maintainer rates it (D23).
+id: github
+name: GitHub
+docs_url: https://docs.github.com/en
+api_reference_url: https://docs.github.com/en/rest
+openapi_url: https://raw.githubusercontent.com/github/rest-api-description/main/descriptions/api.github.com/api.github.com.2026-03-10.json
+changelog_url: https://github.blog/changelog/
+versioning: "Date-based X-GitHub-Api-Version header; requests without it get 2022-11-28, and a version stays supported for 24 months after a newer one is released"
+current_api_version: "2026-03-10"
+terms_url: https://docs.github.com/en/site-policy/github-terms/github-terms-of-service
+terms:
+  status: red
+  consent: null
+  notes: >-
+    Placeholder: only the maintainer raises this (D23). Proposed rating: green. Clauses read on
+    2026-10-09, quoted in evidence. Testing and benchmarking: the Terms of Service, the Acceptable
+    Use Policies and the Additional Product Terms have no clause that restricts testing the API in
+    your own organization or publishing the results. The only benchmarking clause (Additional
+    Product Terms, Competitive Benchmarking) applies to someone who offers a product competitive to
+    a GitHub product, and asks only that they waive their own benchmarking restrictions; Palin's
+    licenses (Apache-2.0 for code, CC BY 4.0 for data) have none. Publishing: Acceptable Use
+    Policies section 7 lets researchers use public, non-personal information from the Service only
+    if publications from that research are open access; Palin's records and traces are public under
+    CC BY 4.0 and describe its own public test repositories. API terms (Terms of Service section H):
+    no abusive or excessively frequent requests, no sharing tokens to exceed rate limits, and no
+    downloading data for spam or for selling personal information; the harness sends at most one
+    request per second in short runs. Accounts: Terms of Service section B allows one free machine
+    account per person, which is the observer (D25). Commercial use is the clause to read closely:
+    Acceptable Use Policies section 6 bars selling, reselling or exploiting any portion of the
+    Service, use of the Service, or access to the Service without GitHub's written permission.
+    Palin's paid offers (D19) sell its own observations and audits, not access to or copies of
+    GitHub. If that reading is in doubt, rate it yellow until GitHub's written consent is on file.
+sandbox:
+  kind: test_account
+  signup_url: https://docs.github.com/en/organizations/collaborating-with-groups-in-organizations/creating-a-new-organization-from-scratch
+  cost: free
+  notes: >-
+    No test mode, test keys or key prefixes were found in GitHub's docs, so the sandbox is a
+    dedicated test organization on GitHub Free with public repositories. The harness acts as a
+    private GitHub App registered under that organization and installed only there, and observes
+    through one machine account (D25). Secondary rate limits allow at most 80 content-generating
+    requests a minute and 500 an hour.
+evidence:
+  - type: doc
+    url: https://docs.github.com/en/rest/about-the-rest-api/api-versions
+    quote: "You should use the X-GitHub-Api-Version header to specify an API version."
+    retrieved: 2026-10-09
+    supports: [versioning]
+  - type: doc
+    url: https://docs.github.com/en/rest/about-the-rest-api/api-versions
+    quote: "Requests without the X-GitHub-Api-Version header will default to use the 2022-11-28 version."
+    retrieved: 2026-10-09
+    supports: [versioning]
+  - type: doc
+    url: https://docs.github.com/en/rest/about-the-rest-api/api-versions
+    quote: "API versions are supported for 24 months after a newer API version is released."
+    retrieved: 2026-10-09
+    supports: [versioning]
+  - type: doc
+    url: https://docs.github.com/en/rest/about-the-rest-api/api-versions
+    quote: "2026-03-10 Not yet scheduled 2022-11-28 March 10, 2028"
+    retrieved: 2026-10-09
+    supports: [current_api_version]
+  - type: doc
+    url: https://github.com/github/rest-api-description
+    quote: "This repository contains OpenAPI descriptions for GitHub's REST API."
+    retrieved: 2026-10-09
+    supports: [openapi_url]
+  - type: doc
+    url: https://docs.github.com/en/get-started/learning-about-github/githubs-plans
+    quote: "With GitHub Free for organizations, you can work with unlimited collaborators on unlimited public repositories with a full feature set, or unlimited private repositories with a limited feature set."
+    retrieved: 2026-10-09
+    supports: [sandbox]
+  - type: doc
+    url: https://github.com/pricing
+    quote: "The basics for individuals and organizations $0 USD per month"
+    retrieved: 2026-10-09
+    supports: [sandbox.cost]
+  - type: doc
+    url: https://docs.github.com/en/organizations/collaborating-with-groups-in-organizations/creating-a-new-organization-from-scratch
+    quote: "Next to the \"Organizations\" header, click New organization."
+    retrieved: 2026-10-09
+    supports: [sandbox.signup_url]
+  - type: doc
+    url: https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app
+    quote: "You can register a GitHub App under your personal account or under any organization you own."
+    retrieved: 2026-10-09
+    supports: [sandbox.notes]
+  - type: doc
+    url: https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app
+    quote: "Under \"Where can this GitHub App be installed?\", select Only on this account or Any account."
+    retrieved: 2026-10-09
+    supports: [sandbox.notes]
+  - type: doc
+    url: https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api
+    quote: "In general, no more than 80 content-generating requests per minute and no more than 500 content-generating requests per hour are allowed."
+    retrieved: 2026-10-09
+    supports: [sandbox.notes, terms]
+  - type: doc
+    url: https://docs.github.com/en/site-policy/github-terms/github-terms-of-service
+    quote: "A machine account is an Account set up by an individual human who accepts the Terms on behalf of the Account, provides a valid email address, and is responsible for its actions."
+    retrieved: 2026-10-09
+    supports: [sandbox.notes, terms]
+  - type: doc
+    url: https://docs.github.com/en/site-policy/github-terms/github-terms-of-service
+    quote: "You may maintain no more than one free machine account in addition to your free Personal Account."
+    retrieved: 2026-10-09
+    supports: [sandbox.notes, terms]
+  - type: doc
+    url: https://docs.github.com/en/site-policy/github-terms/github-terms-of-service
+    quote: "Abuse or excessively frequent requests to GitHub via the API may result in the temporary or permanent suspension of your Account's access to the API."
+    retrieved: 2026-10-09
+    supports: [terms]
+  - type: doc
+    url: https://docs.github.com/en/site-policy/github-terms/github-terms-of-service
+    quote: "You may not share API tokens to exceed GitHub's rate limitations."
+    retrieved: 2026-10-09
+    supports: [terms]
+  - type: doc
+    url: https://docs.github.com/en/site-policy/github-terms/github-terms-of-service
+    quote: "You may not use the API to download data or Content from GitHub for spamming purposes, including for the purposes of selling GitHub users' personal information, such as to recruiters, headhunters, and job boards."
+    retrieved: 2026-10-09
+    supports: [terms]
+  - type: doc
+    url: https://docs.github.com/en/site-policy/acceptable-use-policies/github-acceptable-use-policies
+    quote: "Researchers may use public, non-personal information from the Service for research purposes, only if any publications resulting from that research are open access."
+    retrieved: 2026-10-09
+    supports: [terms]
+  - type: doc
+    url: https://docs.github.com/en/site-policy/acceptable-use-policies/github-acceptable-use-policies
+    quote: "You will not reproduce, duplicate, copy, sell, resell or exploit any portion of the Service, use of the Service, or access to the Service without our express written permission."
+    retrieved: 2026-10-09
+    supports: [terms]
+  - type: doc
+    url: https://docs.github.com/en/site-policy/github-terms/github-terms-for-additional-products-and-features
+    quote: "If you offer a product or service competitive to any GitHub product or service, by using that GitHub product or service, you agree to and hereby waive any restrictions as to GitHub on competitive use and benchmark testing"
+    retrieved: 2026-10-09
+    supports: [terms]
+last_reviewed: 2026-10-09
