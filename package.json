@@ -11,7 +11,8 @@
   },
   "scripts": {
     "validate": "tsx packages/schema/scripts/validate.ts",
-    "test": "pnpm -r --if-present test",
+    "test": "pnpm test:hooks && pnpm -r --if-present test",
+    "test:hooks": "vitest run --config .claude/hooks/vitest.config.mjs",
     "typecheck": "pnpm -r --if-present typecheck",
     "build": "pnpm -r --if-present build"
   },

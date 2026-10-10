@@ -8,6 +8,8 @@
       "Bash(pnpm validate *)",
       "Bash(pnpm test)",
       "Bash(pnpm test *)",
+      "Bash(pnpm test:hooks)",
+      "Bash(pnpm test:hooks *)",
       "Bash(pnpm typecheck)",
       "Bash(pnpm build)",
       "Bash(pnpm build:bundle)",
@@ -53,13 +55,55 @@
       "Read(**/*.pem)",
       "Read(**/*.key)",
       "Edit(**/*.pem)",
-      "Edit(**/*.key)"
+      "Edit(**/*.key)",
+      "Bash(stripe *)",
+      "Read(~/.config/gh/**)",
+      "Edit(~/.config/gh/**)",
+      "Read(~/.config/stripe/**)",
+      "Edit(~/.config/stripe/**)",
+      "Read(~/Library/Preferences/.wrangler/**)",
+      "Edit(~/Library/Preferences/.wrangler/**)",
+      "Read(~/.config/.wrangler/**)",
+      "Edit(~/.config/.wrangler/**)",
+      "Read(~/.wrangler/**)",
+      "Edit(~/.wrangler/**)",
+      "Read(~/.npmrc)",
+      "Edit(~/.npmrc)",
+      "Read(~/.docker/config.json)",
+      "Edit(~/.docker/config.json)",
+      "Read(~/.netrc)",
+      "Edit(~/.netrc)",
+      "Read(~/.git-credentials)",
+      "Edit(~/.git-credentials)",
+      "Read(~/.config/git/credentials)",
+      "Edit(~/.config/git/credentials)",
+      "Read(~/.kube/**)",
+      "Edit(~/.kube/**)",
+      "Read(~/.pypirc)",
+      "Edit(~/.pypirc)",
+      "Read(~/.claude.json)",
+      "Edit(~/.claude.json)",
+      "Read(~/.claude.json.*)",
+      "Edit(~/.claude.json.*)",
+      "Read(~/Library/Application Support/Claude/claude_desktop_config.json)",
+      "Edit(~/Library/Application Support/Claude/claude_desktop_config.json)",
+      "Read(~/.cursor/mcp.json)",
+      "Edit(~/.cursor/mcp.json)",
+      "Read(~/.claude/backups/**)",
+      "Edit(~/.claude/backups/**)",
+      "Read(~/.claude/.credentials.json)",
+      "Edit(~/.claude/.credentials.json)"
     ]
   },
+  "deniedMcpServers": [
+    { "serverUrl": "https://mcp.slack.com/*" },
+    { "serverUrl": "https://mcp.notion.com/*" },
+    { "serverUrl": "https://mcp.stripe.com/*" }
+  ],
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Bash|Edit|Write|MultiEdit",
+        "matcher": "Bash|Edit|Write|MultiEdit|NotebookEdit",
         "hooks": [
           {
             "type": "command",
@@ -87,7 +131,7 @@
           {
             "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/stop-checks.mjs\"",
-            "timeout": 360
+            "timeout": 480
           }
         ]
       }
